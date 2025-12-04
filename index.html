@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON文件对比工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>JSON文件对比工具</h1>
+            <p class="subtitle">对比两个JSON文件的差异并高亮显示</p>
+        </header>
+
+        <div class="file-upload-section">
+            <div class="file-upload">
+                <label for="fileInput1" class="file-label">
+                    <span class="file-icon">📄</span>
+                    <span>选择文件 A</span>
+                </label>
+                <input type="file" id="fileInput1" accept=".json" class="file-input">
+                <div id="fileInfo1" class="file-info">未选择文件</div>
+            </div>
+            
+            <div class="file-upload">
+                <label for="fileInput2" class="file-label">
+                    <span class="file-icon">📄</span>
+                    <span>选择文件 B</span>
+                </label>
+                <input type="file" id="fileInput2" accept=".json" class="file-input">
+                <div id="fileInfo2" class="file-info">未选择文件</div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div id="statusInfo" class="status-info">就绪 - 请选择两个JSON文件进行对比</div>
+            <div id="diffStats" class="diff-stats"></div>
+        </div>
+
+        <div class="toolbar">
+            <button id="compareBtn" class="toolbar-btn primary">
+                <span>🔄</span> 开始对比
+            </button>
+            <button id="expandAllBtn" class="toolbar-btn">
+                <span>📋</span> 展开全部
+            </button>
+            <button id="collapseAllBtn" class="toolbar-btn">
+                <span>📃</span> 折叠全部
+            </button>
+            <button id="showOnlyDiffBtn" class="toolbar-btn">
+                <span>🔍</span> 仅显示差异
+            </button>
+        </div>
+
+        <div class="diff-navigator">
+            <div class="navigator-header">
+                <h3>差异导航</h3>
+                <span id="diffCount" class="diff-count">0 个差异</span>
+            </div>
+            <div id="diffList" class="diff-list">
+                <p class="empty-message">暂无差异</p>
+            </div>
+        </div>
+
+        <div class="diff-viewer">
+            <div class="viewer-tabs">
+                <button id="sideBySideTab" class="tab-btn active">并排对比</button>
+                <button id="inlineTab" class="tab-btn">内联对比</button>
+            </div>
+            
+            <div id="diffContent" class="diff-content">
+                <div class="placeholder">
+                    <div class="placeholder-icon">🔍</div>
+                    <h3>开始使用</h3>
+                    <p>请选择两个JSON文件，然后点击"开始对比"按钮</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>JSON文件对比工具 v1.0</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

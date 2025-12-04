@@ -1,0 +1,546 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* 容器样式 */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* 头部样式 */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 2px solid #eee;
+}
+
+.header h1 {
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.header .subtitle {
+    color: #7f8c8d;
+    font-size: 1.1em;
+}
+
+/* 文件上传区域 */
+.file-upload-section {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.file-upload {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.file-input {
+    display: none;
+}
+
+.file-info {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #7f8c8d;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 状态栏 */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.status-info {
+    font-weight: bold;
+    color: #495057;
+}
+
+.diff-stats {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* 工具栏 */
+.toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.toolbar-btn {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.toolbar-btn:hover {
+    background: #5a6268;
+}
+
+.toolbar-btn.primary {
+    background: linear-gradient(45deg, #28a745, #218838);
+}
+
+.toolbar-btn.primary:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+}
+
+.toolbar-btn:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+}
+
+/* 差异导航器 */
+.diff-navigator {
+    position: sticky;
+    top: 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.navigator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.navigator-header h3 {
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+.diff-count {
+    font-size: 0.9em;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* 导航控制 */
+.navigation-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f2f5;
+    border-radius: 4px;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 差异分组标题 */
+.diff-group-header {
+    font-weight: bold;
+    padding: 8px 12px;
+    margin: 10px 0 5px 0;
+    border-radius: 3px;
+    color: white;
+}
+
+.diff-group-header.added {
+    background-color: #28a745;
+}
+
+.diff-group-header.modified {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.diff-group-header.removed {
+    background-color: #dc3545;
+}
+
+.diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 差异项 */
+.diff-item {
+    padding: 6px 12px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9em;
+    border-left: 3px solid transparent;
+}
+
+.diff-item:hover {
+    background: #f8f9fa;
+    border-color: #3498db;
+}
+
+/* 差异标题和详情 */
+.diff-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.diff-details {
+    margin-top: 5px;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 3px;
+    font-size: 12px;
+    display: none;
+}
+
+.diff-old-value {
+    color: #dc3545;
+    margin-bottom: 4px;
+}
+
+.diff-new-value {
+    color: #28a745;
+}
+
+.diff-item.added {
+    border-left-color: #28a745;
+    background-color: #d4edda;
+}
+
+.diff-item.removed {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.diff-item.modified {
+    border-left-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.empty-message {
+    color: #6c757d;
+    text-align: center;
+    font-style: italic;
+}
+
+/* 差异查看器 */
+.diff-viewer {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.viewer-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.tab-btn.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.diff-content {
+    min-height: 500px;
+    padding: 20px;
+    background: white;
+}
+
+/* 并排对比样式 */
+.side-by-side-view {
+    display: flex;
+    gap: 20px;
+}
+
+.file-pane {
+    flex: 1;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.file-header {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+}
+
+.json-tree {
+    padding: 20px;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* 内联对比样式 */
+.inline-view {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* JSON节点样式 */
+.json-node {
+    padding-left: 20px;
+}
+
+.json-item {
+    margin: 5px 0;
+}
+
+.json-key {
+    color: #0066cc;
+    font-weight: bold;
+}
+
+.json-value {
+    color: #008800;
+}
+
+.json-string {
+    color: #aa0000;
+}
+
+.json-number {
+    color: #008800;
+}
+
+.json-boolean {
+    color: #0066cc;
+}
+
+.json-null {
+    color: #666;
+    font-style: italic;
+}
+
+.collapsible {
+    cursor: pointer;
+    padding: 0 5px;
+    margin-right: 5px;
+    font-weight: bold;
+    color: #666;
+}
+
+.collapsible:hover {
+    color: #333;
+}
+
+.collapsible.collapsed:before {
+    content: '+';
+}
+
+.collapsible:before {
+    content: '-';
+}
+
+/* 差异高亮样式 */
+.added {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.removed {
+    background-color: #f8d7da;
+    color: #721c24;
+    text-decoration: line-through;
+}
+
+.modified {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* 差异指示器 */
+.change-indicator {
+    font-size: 12px;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #666;
+}
+
+/* 高亮动画 */
+.json-item.highlight {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #ffd700;
+    }
+    100% {
+        background-color: inherit;
+    }
+}
+
+/* 占位符样式 */
+.placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.placeholder-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.placeholder h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.placeholder p {
+    font-size: 1.1em;
+    max-width: 500px;
+}
+
+/* 页脚样式 */
+.footer {
+    margin-top: 50px;
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .file-upload-section {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .toolbar {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .toolbar-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .side-by-side-view {
+        flex-direction: column;
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
