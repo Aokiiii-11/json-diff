@@ -1,0 +1,18 @@
+{
+  "name": "JSON对比插件",
+  "version": "1.0.0",
+  "description": "一个用于对比两个JSON文件差异的插件",
+  "author": "开发者",
+  "features": [
+    "JSON文件读取和解析",
+    "深度对比算法",
+    "差异高亮显示",
+    "差异统计和导航"
+  ],
+  "settings": {
+    "theme": "light",
+    "autoExpand": false,
+    "showOnlyDifferences": true
+  },
+  "dependencies": []
+}

@@ -88,6 +88,27 @@ body {
     text-overflow: ellipsis;
 }
 
+/* JSON文本区域样式 */
+.json-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.json-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
 /* 状态栏 */
 .status-bar {
     display: flex;

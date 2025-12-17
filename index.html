@@ -15,26 +15,26 @@
 
         <div class="file-upload-section">
             <div class="file-upload">
-                <label for="fileInput1" class="file-label">
-                    <span class="file-icon">📄</span>
-                    <span>选择文件 A</span>
+                <label for="jsonInput1" class="file-label">
+                    <span class="file-icon">�</span>
+                    <span>JSON字符串 A</span>
                 </label>
-                <input type="file" id="fileInput1" accept=".json" class="file-input">
-                <div id="fileInfo1" class="file-info">未选择文件</div>
+                <textarea id="jsonInput1" class="json-textarea" placeholder="请输入第一个JSON字符串..."></textarea>
+                <div id="jsonInfo1" class="file-info">未输入JSON</div>
             </div>
             
             <div class="file-upload">
-                <label for="fileInput2" class="file-label">
-                    <span class="file-icon">📄</span>
-                    <span>选择文件 B</span>
+                <label for="jsonInput2" class="file-label">
+                    <span class="file-icon">�</span>
+                    <span>JSON字符串 B</span>
                 </label>
-                <input type="file" id="fileInput2" accept=".json" class="file-input">
-                <div id="fileInfo2" class="file-info">未选择文件</div>
+                <textarea id="jsonInput2" class="json-textarea" placeholder="请输入第二个JSON字符串..."></textarea>
+                <div id="jsonInfo2" class="file-info">未输入JSON</div>
             </div>
         </div>
 
         <div class="status-bar">
-            <div id="statusInfo" class="status-info">就绪 - 请选择两个JSON文件进行对比</div>
+            <div id="statusInfo" class="status-info">就绪 - 请输入两个JSON字符串进行对比</div>
             <div id="diffStats" class="diff-stats"></div>
         </div>
 
@@ -71,10 +71,10 @@
             
             <div id="diffContent" class="diff-content">
                 <div class="placeholder">
-                    <div class="placeholder-icon">🔍</div>
-                    <h3>开始使用</h3>
-                    <p>请选择两个JSON文件，然后点击"开始对比"按钮</p>
-                </div>
+                <div class="placeholder-icon">🔍</div>
+                <h3>开始使用</h3>
+                <p>请输入两个JSON字符串，然后点击"开始对比"按钮</p>
+            </div>
             </div>
         </div>
 

@@ -1,14 +1,14 @@
 // 全局变量
 let jsonData1 = null;
 let jsonData2 = null;
-let fileName1 = '';
-let fileName2 = '';
+let jsonName1 = 'JSON字符串 A';
+let jsonName2 = 'JSON字符串 B';
 let diffResult = null;
 let currentView = 'sideBySide';
 let showOnlyDifferences = false;
 
 // DOM元素
-let fileInput1, fileInput2, fileInfo1, fileInfo2;
+let jsonInput1, jsonInput2, jsonInfo1, jsonInfo2;
 let statusInfo, diffStats, diffCount, diffList;
 let compareBtn, expandAllBtn, collapseAllBtn, showOnlyDiffBtn;
 let sideBySideTab, inlineTab, diffContent;
@@ -16,10 +16,10 @@ let sideBySideTab, inlineTab, diffContent;
 // 初始化函数
 function init() {
     // 获取DOM元素
-    fileInput1 = document.getElementById('fileInput1');
-    fileInput2 = document.getElementById('fileInput2');
-    fileInfo1 = document.getElementById('fileInfo1');
-    fileInfo2 = document.getElementById('fileInfo2');
+    jsonInput1 = document.getElementById('jsonInput1');
+    jsonInput2 = document.getElementById('jsonInput2');
+    jsonInfo1 = document.getElementById('jsonInfo1');
+    jsonInfo2 = document.getElementById('jsonInfo2');
     
     statusInfo = document.getElementById('statusInfo');
     diffStats = document.getElementById('diffStats');
@@ -36,8 +36,8 @@ function init() {
     diffContent = document.getElementById('diffContent');
     
     // 绑定事件
-    fileInput1.addEventListener('change', handleFile1Select);
-    fileInput2.addEventListener('change', handleFile2Select);
+    jsonInput1.addEventListener('input', handleJson1Change);
+    jsonInput2.addEventListener('input', handleJson2Change);
     
     compareBtn.addEventListener('click', compareFiles);
     expandAllBtn.addEventListener('click', expandAllNodes);
@@ -51,65 +51,67 @@ function init() {
     updateButtonStates();
 }
 
-// 处理文件1选择
-function handleFile1Select(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// 处理JSON字符串1输入
+function handleJson1Change(event) {
+    const jsonString = event.target.value.trim();
     
-    fileName1 = file.name;
-    fileInfo1.textContent = fileName1;
+    if (!jsonString) {
+        jsonData1 = null;
+        jsonInfo1.textContent = '未输入JSON';
+        updateButtonStates();
+        return;
+    }
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            jsonData1 = JSON.parse(e.target.result);
-            statusInfo.textContent = `已加载文件: ${fileName1}`;
-            updateButtonStates();
-        } catch (error) {
-            alert('文件1解析错误: ' + error.message);
-            jsonData1 = null;
-            fileName1 = '';
-            fileInfo1.textContent = '未选择文件';
-        }
-    };
-    reader.readAsText(file);
+    try {
+        jsonData1 = JSON.parse(jsonString);
+        jsonInfo1.textContent = 'JSON格式正确';
+        jsonInfo1.style.color = '#28a745';
+        updateButtonStates();
+    } catch (error) {
+        jsonData1 = null;
+        jsonInfo1.textContent = 'JSON格式错误: ' + error.message;
+        jsonInfo1.style.color = '#dc3545';
+        updateButtonStates();
+    }
 }
 
-// 处理文件2选择
-function handleFile2Select(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// 处理JSON字符串2输入
+function handleJson2Change(event) {
+    const jsonString = event.target.value.trim();
     
-    fileName2 = file.name;
-    fileInfo2.textContent = fileName2;
+    if (!jsonString) {
+        jsonData2 = null;
+        jsonInfo2.textContent = '未输入JSON';
+        updateButtonStates();
+        return;
+    }
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            jsonData2 = JSON.parse(e.target.result);
-            statusInfo.textContent = `已加载文件: ${fileName1} 和 ${fileName2}`;
-            updateButtonStates();
-        } catch (error) {
-            alert('文件2解析错误: ' + error.message);
-            jsonData2 = null;
-            fileName2 = '';
-            fileInfo2.textContent = '未选择文件';
-        }
-    };
-    reader.readAsText(file);
+    try {
+        jsonData2 = JSON.parse(jsonString);
+        jsonInfo2.textContent = 'JSON格式正确';
+        jsonInfo2.style.color = '#28a745';
+        updateButtonStates();
+    } catch (error) {
+        jsonData2 = null;
+        jsonInfo2.textContent = 'JSON格式错误: ' + error.message;
+        jsonInfo2.style.color = '#dc3545';
+        updateButtonStates();
+    }
 }
 
 // 更新按钮状态
 function updateButtonStates() {
-    const filesLoaded = jsonData1 !== null && jsonData2 !== null;
-    compareBtn.disabled = !filesLoaded;
+    const jsonLoaded = jsonData1 !== null && jsonData2 !== null;
+    compareBtn.disabled = !jsonLoaded;
     
-    if (filesLoaded) {
-        statusInfo.textContent = `就绪 - 已加载 ${fileName1} 和 ${fileName2}`;
+    if (jsonLoaded) {
+        statusInfo.textContent = '就绪 - 已解析两个JSON字符串';
     } else if (jsonData1 !== null) {
-        statusInfo.textContent = `已加载文件: ${fileName1} - 请选择第二个文件`;
+        statusInfo.textContent = '已解析JSON A - 请输入第二个JSON字符串';
     } else if (jsonData2 !== null) {
-        statusInfo.textContent = `已加载文件: ${fileName2} - 请选择第一个文件`;
+        statusInfo.textContent = '已解析JSON B - 请输入第一个JSON字符串';
+    } else {
+        statusInfo.textContent = '就绪 - 请输入两个JSON字符串进行对比';
     }
 }
 
@@ -648,11 +650,11 @@ function renderSideBySideView() {
     const sideBySideContainer = document.createElement('div');
     sideBySideContainer.className = 'side-by-side-view';
     
-    // 左侧文件
-    const leftPane = createFilePane(fileName1 || '文件 A', jsonData1, diffResult, 'left');
+    // 左侧JSON
+    const leftPane = createFilePane(jsonName1, jsonData1, diffResult, 'left');
     
-    // 右侧文件
-    const rightPane = createFilePane(fileName2 || '文件 B', jsonData2, diffResult, 'right');
+    // 右侧JSON
+    const rightPane = createFilePane(jsonName2, jsonData2, diffResult, 'right');
     
     sideBySideContainer.appendChild(leftPane);
     sideBySideContainer.appendChild(rightPane);
@@ -667,7 +669,7 @@ function renderInlineView() {
     
     const fileHeader = document.createElement('div');
     fileHeader.className = 'file-header';
-    fileHeader.textContent = `内联对比: ${fileName1 || '文件 A'} vs ${fileName2 || '文件 B'}`;
+    fileHeader.textContent = `内联对比: ${jsonName1} vs ${jsonName2}`;
     
     const jsonTree = document.createElement('div');
     jsonTree.className = 'json-tree';
