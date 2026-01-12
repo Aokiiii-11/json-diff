@@ -194,6 +194,19 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
+.current-diff-title {
+    flex: 1;
+    margin: 0 12px;
+    padding: 8px 10px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    color: #155724;
+}
+
 .diff-list {
     padding: 15px;
     display: flex;
@@ -293,6 +306,19 @@ body {
 .diff-title {
     font-size: 14px;
     font-weight: 500;
+}
+
+.diff-context-info {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background-color: #e9ecef; /* Light grey */
+    color: #555;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: monospace;
+    border: 1px solid #ced4da;
+    vertical-align: middle;
 }
 
 .diff-details {

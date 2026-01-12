@@ -9,7 +9,7 @@ let showOnlyDifferences = false;
 
 // DOM元素
 let jsonInput1, jsonInput2, jsonInfo1, jsonInfo2;
-let statusInfo, diffStats, diffCount, diffList, navigatorHeader;
+let statusInfo, diffStats, diffCount, diffList, navigatorHeader, currentDiffTitleEl;
 let compareBtn, expandAllBtn, collapseAllBtn, showOnlyDiffBtn;
 let sideBySideTab, inlineTab, diffContent;
 
@@ -26,6 +26,11 @@ function init() {
     diffCount = document.getElementById('diffCount');
     diffList = document.getElementById('diffList');
     navigatorHeader = document.querySelector('.navigator-header');
+    currentDiffTitleEl = document.getElementById('currentDiffTitle');
+    if (currentDiffTitleEl) {
+        currentDiffTitleEl.innerHTML = '';
+        currentDiffTitleEl.style.display = 'none';
+    }
     
     compareBtn = document.getElementById('compareBtn');
     expandAllBtn = document.getElementById('expandAllBtn');
@@ -332,6 +337,11 @@ function updateDiffStats(stats) {
 function generateDiffList(diff) {
     diffList.innerHTML = '';
     
+    if (currentDiffTitleEl) {
+        currentDiffTitleEl.innerHTML = '';
+        currentDiffTitleEl.style.display = 'none';
+    }
+    
     if (!hasDifferences(diff)) {
         const emptyEl = document.createElement('p');
         emptyEl.className = 'empty-message';
@@ -489,57 +499,64 @@ function createDiffItem(type, path, action, diffItem) {
     const item = document.createElement('div');
     item.className = `diff-item ${type}`;
     
-    // 获取上下文信息 (id, timestamp)
-    let contextInfoStr = '';
     const contextParts = [];
-    
-    // 1. 检查当前项本身是否包含 id/timestamp (适用于新增对象或结构变化)
     let itemValue = null;
     if (type === 'added') itemValue = diffItem.value;
     else if (type === 'removed') itemValue = diffItem.value;
     else if (type === 'modified') itemValue = diffItem.newValue;
-    
     if (itemValue && typeof itemValue === 'object' && itemValue !== null) {
         if (itemValue.id !== undefined) contextParts.push(`id: ${itemValue.id}`);
         if (itemValue.timestamp !== undefined) contextParts.push(`timestamp: ${itemValue.timestamp}`);
     }
-    
-    // 2. 如果当前项没有信息，尝试查找父对象 (适用于属性修改)
-    if (contextParts.length === 0) {
-        // 确定目标JSON (新增/修改查新版，删除查旧版)
-        const targetJson = (type === 'removed') ? jsonData1 : jsonData2;
-        
-        if (targetJson) {
-            // 获取父路径
-            let parentPath = null;
-            const lastDotIndex = path.lastIndexOf('.');
-            const lastBracketIndex = path.lastIndexOf('[');
-            
-            if (lastDotIndex > lastBracketIndex) {
-                parentPath = path.substring(0, lastDotIndex);
-            } else if (lastBracketIndex > -1) {
-                parentPath = path.substring(0, lastBracketIndex);
-            }
-            
-            // 如果找到了父路径，获取父对象
-            if (parentPath !== null) {
-                const parentObj = getValueByPath(targetJson, parentPath);
-                if (parentObj && typeof parentObj === 'object' && parentObj !== null) {
-                    if (parentObj.id !== undefined) contextParts.push(`id: ${parentObj.id}`);
-                    if (parentObj.timestamp !== undefined) contextParts.push(`timestamp: ${parentObj.timestamp}`);
-                }
+    const preferJson = (type === 'removed') ? jsonData1 : jsonData2;
+    const otherJson = (type === 'removed') ? jsonData2 : jsonData1;
+    function getNearestContext(json, p) {
+        if (!json) return {};
+        const list = [];
+        let cur = p;
+        while (cur && list.length < 5) {
+            list.push(cur);
+            if (cur.endsWith(']')) {
+                cur = cur.substring(0, cur.lastIndexOf('['));
+            } else if (cur.lastIndexOf('.') !== -1) {
+                cur = cur.substring(0, cur.lastIndexOf('.'));
+            } else {
+                cur = '';
             }
         }
+        list.push('');
+        for (const ap of list) {
+            const obj = getValueByPath(json, ap);
+            if (obj && typeof obj === 'object') {
+                const r = {};
+                if (obj.id !== undefined) r.id = obj.id;
+                if (obj.timestamp !== undefined) r.timestamp = obj.timestamp;
+                if (r.id !== undefined || r.timestamp !== undefined) return r;
+            }
+        }
+        return {};
     }
-    
-    if (contextParts.length > 0) {
-        contextInfoStr = ` (${contextParts.join(', ')})`;
-    }
+    const ctxPrefer = getNearestContext(preferJson, path);
+    const ctxOther = getNearestContext(otherJson, path);
+    const useId = ctxPrefer.id !== undefined ? ctxPrefer.id : ctxOther.id;
+    const useTs = ctxPrefer.timestamp !== undefined ? ctxPrefer.timestamp : ctxOther.timestamp;
+    if (useId !== undefined && !contextParts.some(s => s.startsWith('id:'))) contextParts.push(`id: ${useId}`);
+    if (useTs !== undefined && !contextParts.some(s => s.startsWith('timestamp:'))) contextParts.push(`timestamp: ${useTs}`);
     
     // 创建标题
     const title = document.createElement('div');
     title.className = 'diff-title';
-    title.textContent = `${action}: ${path}${contextInfoStr}`;
+    
+    const actionSpan = document.createElement('span');
+    actionSpan.textContent = `${action}: ${path} `;
+    title.appendChild(actionSpan);
+    
+    if (contextParts.length > 0) {
+        const contextSpan = document.createElement('span');
+        contextSpan.className = 'diff-context-info';
+        contextSpan.textContent = contextParts.join(' | ');
+        title.appendChild(contextSpan);
+    }
     
     // 创建详情
     const details = document.createElement('div');
@@ -566,7 +583,13 @@ function createDiffItem(type, path, action, diffItem) {
     
     // 添加点击事件，滚动到对应位置
     item.addEventListener('click', () => {
-
+        if (currentDiffTitleEl) {
+            const clonedTitle = title.cloneNode(true);
+            currentDiffTitleEl.innerHTML = '';
+            currentDiffTitleEl.appendChild(clonedTitle);
+            const hasText = currentDiffTitleEl.textContent.trim().length > 0;
+            currentDiffTitleEl.style.display = hasText ? 'flex' : 'none';
+        }
         
         // 先展开所有节点以便找到目标元素
         expandAllNodes();
@@ -885,7 +908,8 @@ function renderObjectNode(container, object, path, diff, side) {
         propNode.appendChild(valueContainer);
         
         // 应用差异样式
-        applyDiffStyles(propNode, valuePath, diff, side);
+        // 传入 true 以跳过指示器，避免与 renderNode 中的指示器重复
+        applyDiffStyles(propNode, valuePath, diff, side, true);
         
         childrenContainer.appendChild(propNode);
     });
@@ -907,7 +931,7 @@ function renderObjectNode(container, object, path, diff, side) {
 }
 
 // 应用差异样式
-function applyDiffStyles(element, path, diff, side) {
+function applyDiffStyles(element, path, diff, side, skipIndicator = false) {
     // 查找当前路径的差异信息
     const diffInfo = findDiffInfo(diff, path);
     
@@ -922,10 +946,12 @@ function applyDiffStyles(element, path, diff, side) {
         if (diffInfo && diffInfo.modified && diffInfo.oldValue !== undefined) {
             element.classList.add('modified');
             // 显示修改前后的值
-            const changeIndicator = document.createElement('span');
-            changeIndicator.className = 'change-indicator';
-            changeIndicator.textContent = `[修改前: ${diffInfo.oldValue}]`;
-            element.appendChild(changeIndicator);
+            if (!skipIndicator) {
+                const changeIndicator = document.createElement('span');
+                changeIndicator.className = 'change-indicator';
+                changeIndicator.textContent = `[修改前: ${diffInfo.oldValue}]`;
+                element.appendChild(changeIndicator);
+            }
         }
     } else {
         // 右侧文件 - 检查新增和修改
@@ -935,10 +961,12 @@ function applyDiffStyles(element, path, diff, side) {
         if (diffInfo && diffInfo.modified && diffInfo.newValue !== undefined) {
             element.classList.add('modified');
             // 显示修改后的值
-            const changeIndicator = document.createElement('span');
-            changeIndicator.className = 'change-indicator';
-            changeIndicator.textContent = `[修改为: ${diffInfo.newValue}]`;
-            element.appendChild(changeIndicator);
+            if (!skipIndicator) {
+                const changeIndicator = document.createElement('span');
+                changeIndicator.className = 'change-indicator';
+                changeIndicator.textContent = `[修改为: ${diffInfo.newValue}]`;
+                element.appendChild(changeIndicator);
+            }
         }
     }
     

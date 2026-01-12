@@ -53,28 +53,32 @@
             </button>
         </div>
 
-        <div class="diff-navigator">
+        <div class="diff-section">
             <div class="navigator-header">
                 <h3>差异导航</h3>
                 <span id="diffCount" class="diff-count">0 个差异</span>
-            </div>
-            <div id="diffList" class="diff-list">
-                <p class="empty-message">暂无差异</p>
-            </div>
-        </div>
-
-        <div class="diff-viewer">
-            <div class="viewer-tabs">
-                <button id="sideBySideTab" class="tab-btn active">并排对比</button>
-                <button id="inlineTab" class="tab-btn">内联对比</button>
+                <div id="currentDiffTitle" class="current-diff-title"></div>
             </div>
             
-            <div id="diffContent" class="diff-content">
-                <div class="placeholder">
-                <div class="placeholder-icon">🔍</div>
-                <h3>开始使用</h3>
-                <p>请输入两个JSON字符串，然后点击"开始对比"按钮</p>
+            <div class="diff-navigator-body">
+                <div id="diffList" class="diff-list">
+                    <p class="empty-message">暂无差异</p>
+                </div>
             </div>
+
+            <div class="diff-viewer">
+                <div class="viewer-tabs">
+                    <button id="sideBySideTab" class="tab-btn active">并排对比</button>
+                    <button id="inlineTab" class="tab-btn">内联对比</button>
+                </div>
+                
+                <div id="diffContent" class="diff-content">
+                    <div class="placeholder">
+                    <div class="placeholder-icon">🔍</div>
+                    <h3>开始使用</h3>
+                    <p>请输入两个JSON字符串，然后点击"开始对比"按钮</p>
+                </div>
+                </div>
             </div>
         </div>
 
