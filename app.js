@@ -9,7 +9,7 @@ let showOnlyDifferences = false;
 
 // DOM元素
 let jsonInput1, jsonInput2, jsonInfo1, jsonInfo2;
-let statusInfo, diffStats, diffCount, diffList;
+let statusInfo, diffStats, diffCount, diffList, navigatorHeader;
 let compareBtn, expandAllBtn, collapseAllBtn, showOnlyDiffBtn;
 let sideBySideTab, inlineTab, diffContent;
 
@@ -25,6 +25,7 @@ function init() {
     diffStats = document.getElementById('diffStats');
     diffCount = document.getElementById('diffCount');
     diffList = document.getElementById('diffList');
+    navigatorHeader = document.querySelector('.navigator-header');
     
     compareBtn = document.getElementById('compareBtn');
     expandAllBtn = document.getElementById('expandAllBtn');
@@ -403,32 +404,38 @@ function generateDiffList(diff) {
 
 // 添加导航控制功能
 function addNavigationControls() {
-    const firstDiffBtn = document.createElement('button');
-    firstDiffBtn.className = 'nav-btn';
-    firstDiffBtn.textContent = '第一个差异';
+    // 清除旧的导航控件（如果有）
+    const oldNav = navigatorHeader.querySelector('.navigation-controls');
+    if (oldNav) {
+        oldNav.remove();
+    }
+
+    const navContainer = document.createElement('div');
+    navContainer.className = 'navigation-controls';
+
+    // 折叠/展开按钮
+    const toggleListBtn = document.createElement('button');
+    toggleListBtn.className = 'nav-btn toggle-list-btn';
+    toggleListBtn.innerHTML = '折叠列表'; // 默认显示收起文案
+    toggleListBtn.title = '折叠/展开列表';
     
+    // 导航按钮组
     const prevDiffBtn = document.createElement('button');
     prevDiffBtn.className = 'nav-btn';
-    prevDiffBtn.textContent = '上一个差异';
+    prevDiffBtn.innerHTML = '上一个';
+    prevDiffBtn.title = '上一个差异';
     
     const nextDiffBtn = document.createElement('button');
     nextDiffBtn.className = 'nav-btn';
-    nextDiffBtn.textContent = '下一个差异';
+    nextDiffBtn.innerHTML = '下一个';
+    nextDiffBtn.title = '下一个差异';
     
-    const lastDiffBtn = document.createElement('button');
-    lastDiffBtn.className = 'nav-btn';
-    lastDiffBtn.textContent = '最后一个差异';
-    
-    const navContainer = document.createElement('div');
-    navContainer.className = 'navigation-controls';
-    
-    navContainer.appendChild(firstDiffBtn);
     navContainer.appendChild(prevDiffBtn);
     navContainer.appendChild(nextDiffBtn);
-    navContainer.appendChild(lastDiffBtn);
+    navContainer.appendChild(toggleListBtn);
     
-    // 插入到差异统计下方
-    diffStats.parentNode.insertBefore(navContainer, diffStats.nextSibling);
+    // 插入到标题栏右侧
+    navigatorHeader.appendChild(navContainer);
     
     // 导航功能实现
     let currentDiffIndex = -1;
@@ -445,17 +452,33 @@ function addNavigationControls() {
     }
     
     function updateNavButtonStates() {
-        firstDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex === 0;
         prevDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex <= 0;
         nextDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex >= allDiffItems.length - 1;
-        lastDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex === allDiffItems.length - 1;
     }
     
     // 绑定按钮事件
-    firstDiffBtn.addEventListener('click', () => navigateToDiff(0));
-    prevDiffBtn.addEventListener('click', () => navigateToDiff(currentDiffIndex - 1));
-    nextDiffBtn.addEventListener('click', () => navigateToDiff(currentDiffIndex + 1));
-    lastDiffBtn.addEventListener('click', () => navigateToDiff(allDiffItems.length - 1));
+    prevDiffBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateToDiff(currentDiffIndex - 1);
+    });
+    nextDiffBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateToDiff(currentDiffIndex + 1);
+    });
+
+    // 折叠/展开功能
+    let isCollapsed = false;
+    toggleListBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isCollapsed = !isCollapsed;
+        if (isCollapsed) {
+            diffList.style.display = 'none';
+            toggleListBtn.innerHTML = '🔽';
+        } else {
+            diffList.style.display = 'flex';
+            toggleListBtn.innerHTML = '🔼';
+        }
+    });
     
     // 初始化按钮状态
     updateNavButtonStates();
@@ -466,10 +489,57 @@ function createDiffItem(type, path, action, diffItem) {
     const item = document.createElement('div');
     item.className = `diff-item ${type}`;
     
+    // 获取上下文信息 (id, timestamp)
+    let contextInfoStr = '';
+    const contextParts = [];
+    
+    // 1. 检查当前项本身是否包含 id/timestamp (适用于新增对象或结构变化)
+    let itemValue = null;
+    if (type === 'added') itemValue = diffItem.value;
+    else if (type === 'removed') itemValue = diffItem.value;
+    else if (type === 'modified') itemValue = diffItem.newValue;
+    
+    if (itemValue && typeof itemValue === 'object' && itemValue !== null) {
+        if (itemValue.id !== undefined) contextParts.push(`id: ${itemValue.id}`);
+        if (itemValue.timestamp !== undefined) contextParts.push(`timestamp: ${itemValue.timestamp}`);
+    }
+    
+    // 2. 如果当前项没有信息，尝试查找父对象 (适用于属性修改)
+    if (contextParts.length === 0) {
+        // 确定目标JSON (新增/修改查新版，删除查旧版)
+        const targetJson = (type === 'removed') ? jsonData1 : jsonData2;
+        
+        if (targetJson) {
+            // 获取父路径
+            let parentPath = null;
+            const lastDotIndex = path.lastIndexOf('.');
+            const lastBracketIndex = path.lastIndexOf('[');
+            
+            if (lastDotIndex > lastBracketIndex) {
+                parentPath = path.substring(0, lastDotIndex);
+            } else if (lastBracketIndex > -1) {
+                parentPath = path.substring(0, lastBracketIndex);
+            }
+            
+            // 如果找到了父路径，获取父对象
+            if (parentPath !== null) {
+                const parentObj = getValueByPath(targetJson, parentPath);
+                if (parentObj && typeof parentObj === 'object' && parentObj !== null) {
+                    if (parentObj.id !== undefined) contextParts.push(`id: ${parentObj.id}`);
+                    if (parentObj.timestamp !== undefined) contextParts.push(`timestamp: ${parentObj.timestamp}`);
+                }
+            }
+        }
+    }
+    
+    if (contextParts.length > 0) {
+        contextInfoStr = ` (${contextParts.join(', ')})`;
+    }
+    
     // 创建标题
     const title = document.createElement('div');
     title.className = 'diff-title';
-    title.textContent = `${action}: ${path}`;
+    title.textContent = `${action}: ${path}${contextInfoStr}`;
     
     // 创建详情
     const details = document.createElement('div');
@@ -1104,3 +1174,22 @@ function hasChildDifferences(diff, path) {
 
 // 启动应用
 window.addEventListener('DOMContentLoaded', init);
+
+// 根据路径获取JSON对象中的值
+function getValueByPath(obj, path) {
+    if (!obj) return undefined;
+    if (!path) return obj;
+    
+    // 将路径转换为点号分隔的形式
+    // items[0] -> items.0
+    // [0] -> 0
+    const normalizedPath = path.replace(/\[(\d+)\]/g, '.$1').replace(/^\./, '');
+    const parts = normalizedPath.split('.');
+    
+    let current = obj;
+    for (const part of parts) {
+        if (current === null || current === undefined) return undefined;
+        current = current[part];
+    }
+    return current;
+}
