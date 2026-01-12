@@ -6,12 +6,35 @@ let jsonName2 = 'JSON字符串 B';
 let diffResult = null;
 let currentView = 'sideBySide';
 let showOnlyDifferences = false;
+let currentDiffIndex = -1;
+let diffNavPrevBtn = null;
+let diffNavNextBtn = null;
 
 // DOM元素
 let jsonInput1, jsonInput2, jsonInfo1, jsonInfo2;
 let statusInfo, diffStats, diffCount, diffList, navigatorHeader, currentDiffTitleEl;
 let compareBtn, expandAllBtn, collapseAllBtn, showOnlyDiffBtn;
 let sideBySideTab, inlineTab, diffContent;
+
+function getAllDiffItems() {
+    return Array.from(document.querySelectorAll('.diff-item'));
+}
+
+function updateNavButtonStates() {
+    if (!diffNavPrevBtn || !diffNavNextBtn) return;
+    const allDiffItems = getAllDiffItems();
+    diffNavPrevBtn.disabled = allDiffItems.length === 0 || currentDiffIndex <= 0;
+    diffNavNextBtn.disabled = allDiffItems.length === 0 || (currentDiffIndex !== -1 && currentDiffIndex >= allDiffItems.length - 1);
+}
+
+function navigateToDiff(index) {
+    const allDiffItems = getAllDiffItems();
+    if (index >= 0 && index < allDiffItems.length) {
+        currentDiffIndex = index;
+        updateNavButtonStates();
+        allDiffItems[index].click();
+    }
+}
 
 // 初始化函数
 function init() {
@@ -336,6 +359,7 @@ function updateDiffStats(stats) {
 // 生成差异导航列表
 function generateDiffList(diff) {
     diffList.innerHTML = '';
+    currentDiffIndex = -1;
     
     if (currentDiffTitleEl) {
         currentDiffTitleEl.innerHTML = '';
@@ -447,33 +471,19 @@ function addNavigationControls() {
     // 插入到标题栏右侧
     navigatorHeader.appendChild(navContainer);
     
-    // 导航功能实现
-    let currentDiffIndex = -1;
-    const allDiffItems = document.querySelectorAll('.diff-item');
-    
-    function navigateToDiff(index) {
-        if (index >= 0 && index < allDiffItems.length) {
-            currentDiffIndex = index;
-            allDiffItems[index].click();
-            
-            // 更新按钮状态
-            updateNavButtonStates();
-        }
-    }
-    
-    function updateNavButtonStates() {
-        prevDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex <= 0;
-        nextDiffBtn.disabled = allDiffItems.length === 0 || currentDiffIndex >= allDiffItems.length - 1;
-    }
+    diffNavPrevBtn = prevDiffBtn;
+    diffNavNextBtn = nextDiffBtn;
     
     // 绑定按钮事件
     prevDiffBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (currentDiffIndex === -1) return;
         navigateToDiff(currentDiffIndex - 1);
     });
     nextDiffBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        navigateToDiff(currentDiffIndex + 1);
+        const nextIndex = currentDiffIndex === -1 ? 0 : currentDiffIndex + 1;
+        navigateToDiff(nextIndex);
     });
 
     // 折叠/展开功能
@@ -583,6 +593,12 @@ function createDiffItem(type, path, action, diffItem) {
     
     // 添加点击事件，滚动到对应位置
     item.addEventListener('click', () => {
+        const allDiffItems = getAllDiffItems();
+        const idx = allDiffItems.indexOf(item);
+        if (idx !== -1) {
+            currentDiffIndex = idx;
+            updateNavButtonStates();
+        }
         if (currentDiffTitleEl) {
             const clonedTitle = title.cloneNode(true);
             currentDiffTitleEl.innerHTML = '';
